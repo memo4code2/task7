@@ -1,10 +1,8 @@
 <?php
 session_start();
 
-if (isset($_SESSION['username'])) {
-    header('Location: profile.php');
-    exit;
-}
+
+
 ?>
 
 <!DOCTYPE html>
@@ -17,6 +15,21 @@ if (isset($_SESSION['username'])) {
     <title>Sign Up - Account Portal</title>
 </head>
 <body>
+    <h1>
+            <?php  
+        
+        if(isset($_SESSION['errorrs'])):
+
+        foreach($_SESSION['errorrs'] as $errorrs ) :    ?>
+            <div class="alert alert-danger text-center">
+                             <?php  echo $errorrs ; ?>
+            </div>
+       <?php endforeach; 
+       unset($_SESSION['errorrs']) ;
+       endif;
+        
+       ?>
+    </h1>
     <div class="login">
         <div class="login__content">
             <div class="login__img">
@@ -24,28 +37,24 @@ if (isset($_SESSION['username'])) {
             </div>
 
             <div class="login__forms">
-                <?php if (isset($_SESSION['message'])): ?>
-                    <div class="message">
-                        <?php echo $_SESSION['message']; unset($_SESSION['message']); ?>
-                    </div>
-                <?php endif; ?>
-
+             
                 <form action="handlers/register.php" method="POST" class="login__registre">
                     <h1 class="login__title">Create Account</h1>
 
-                    <div class="login__box">
+                    <div class="">
                         <i class='bx bx-user login__icon'></i>
+                        
                         <input type="text" name="username" placeholder="Username" class="login__input" required>
                     </div>
 
-                    <div class="login__box">
+                    <div class="">
                         <i class='bx bx-at login__icon'></i>
                         <input type="email" name="email" placeholder="Email" class="login__input" required>
                     </div>
 
-                    <div class="login__box">
+                    <div class="">
                         <i class='bx bx-lock-alt login__icon'></i>
-                        <input type="password" name="password" placeholder="Password (min 6)" class="login__input" minlength="6" required>
+                        <input type="password" name="password" placeholder="Password" class="login__input"  required>
                     </div>
 
                     <button type="submit" class="login__button">Sign Up</button>

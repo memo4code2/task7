@@ -1,60 +1,62 @@
 <?php
-session_start();
+session_start() ;
+include '../core/functions.php' ;
+include '../core/valid.php' ;
 
-$username = trim($_POST['username'] ?? '');
-$email = trim($_POST['email'] ?? '');
-$password = $_POST['password'] ?? '';
 
-$errors = [];
+$errorrs = [] ;
 
-if (strlen($username) < 3) {
-    $errors[] = "Username must be at least 3 characters";
+if( checkRequestMethod("POST")  &&  checkPostInput('username')) {
+
+foreach($_POST as $key  => $value) {
+   $$key = SantizInput($value)     ;  
 }
 
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    $errors[] = "Valid email is required";
+if (!requiredVal($username) || !requiredVal($email) || !requiredVal($password)) {
+    $errorrs[] = "Check all inputs must be not Empty";
 }
 
-if (strlen($password) < 6) {
-    $errors[] = "Password must be at least 6 characters";
+
+elseif( ! minVal($username,3)){
+   $errorrs[]= "Name must be Bigger than 3" ;
+
+}elseif(! maxVal($username , 25)){
+
+ $errorrs[]= "Name Cant Be Bigger Than 25" ;
+
 }
 
-$file = '../data/users.csv';
-if (file_exists($file)) {
-    $handle = fopen($file, 'r');
-    while (($data = fgetcsv($handle, 1000, ',')) !== FALSE) {
-        if (isset($data[0]) && $data[0] === $username) {
-            $errors[] = "Username already taken";
-        }
-        if (isset($data[1]) && $data[1] === $email) {
-            $errors[] = "Email already registered";
-        }
-    }
-    fclose($handle);
+
+elseif( ! minVal($password,3)){
+   $errorrs[]= "password must be Bigger than 3" ;
+
+}elseif(! maxVal($password , 30)){
+
+ $errorrs[]= "password Cant Be Bigger Than 30" ;
+
 }
 
-if (!empty($errors)) {
-    $_SESSION['message'] = implode("\\n", $errors);
-    header('Location: ../signup.php');
-    exit;
+
+
+
+if(empty($errorrs)){
+  $users_file = fopen("../data/users.csv","a+") ;
+  $data =[$username ,$email,sha1($password)] ;
+  fputcsv($users_file,$data) ;
+
+  $_SESSION['auth'] = [$username , $email] ;
+  header("Location: ../profile.php");
+
+
+
+}else{
+  $_SESSION['errorrs'] = $errorrs ;
+  header("location:../signup.php") ;
+  die;
 }
 
-$hashed_password = password_hash($password, PASSWORD_DEFAULT);
-$user_data = [$username, $email, $hashed_password];
 
-if (!is_dir('../data')) {
-    mkdir('../data', 0777, true);
 }
 
-$handle = fopen($file, 'a');
-fputcsv($handle, $user_data);
-fclose($handle);
-
-$_SESSION['username'] = $username;
-$_SESSION['email'] = $email;
-$_SESSION['member_since'] = date('F j, Y');
-
-$_SESSION['message'] = "Account created successfully!";
-header('Location: ../profile.php');
-exit;
+var_dump($errorrs) ;
 ?>

@@ -1,52 +1,62 @@
 <?php
 session_start();
+include '../core/functions.php';
+include '../core/valid.php';
 
-$username = $_POST['username'] ?? '';
-$password = $_POST['password'] ?? '';
+$errorrs = [];
 
-if (empty($username) || empty($password)) {
-    $_SESSION['message'] = "Please fill in all fields";
-    header('Location: ../index.php');
-    exit;
-}
+if (checkRequestMethod("POST") && checkPostInput('username')) {
 
-$file = '../data/users.csv';
+    foreach ($_POST as $key => $value) {
+        $$key = SantizInput($value);
+    }
 
-if (!file_exists($file)) {
-    $_SESSION['message'] = "No users found. Please sign up first.";
-    header('Location: ../index.php');
-    exit;
-}
 
-$user_found = false;
-$handle = fopen($file, 'r');
+    if (!requiredVal($username) || !requiredVal($password)) {
+        $errorrs[] = "Check all inputs must be not Empty";
+    }
 
-while (($data = fgetcsv($handle, 1000, ',')) !== FALSE) {
-    if (isset($data[0]) && trim($data[0]) === trim($username)) {
-        $user_found = true;
-        
-        if (password_verify($password, $data[2])) {
-            $_SESSION['username'] = trim($data[0]);
-            $_SESSION['email'] = trim($data[1]);
-            $_SESSION['member_since'] = date('F j, Y');
-            
-            fclose($handle);
-            header('Location: ../profile.php');
-            exit;
-        } else {
-            $_SESSION['message'] = "Wrong password";
-            fclose($handle);
-            header('Location: ../index.php');
-            exit;
+  
+    if (empty($errorrs)) {
+
+        $found = false;
+        $users_file = fopen("../data/users.csv", "r");
+
+        if ($users_file) {
+            while (($data = fgetcsv($users_file)) !== false) {
+          
+                if (!isset($data[0], $data[1], $data[2])) {
+                    continue;
+                }
+
+                if ($data[0] === $username) {
+                
+                    $passwordMatches = (sha1($password) === $data[2]) ;
+                      
+
+                    if ($passwordMatches) {
+                        $found = true;
+                        $_SESSION['auth'] = [$data[0], $data[1]];
+                        break;
+                    }
+                }
+            }
+            fclose($users_file);
+        }
+
+        if (!$found) {
+            $errorrs[] = "Username or Password is incorrect";
         }
     }
-}
 
-fclose($handle);
-
-if (!$user_found) {
-    $_SESSION['message'] = "Username not found. Please sign up first.";
-    header('Location: ../index.php');
-    exit;
+   
+    if (empty($errorrs)) {
+        header("Location: ../profile.php");
+        die;
+    } else {
+        $_SESSION['message'] = implode("<br>", $errorrs);
+        header("Location: ../index.php");
+        die;
+    }
 }
 ?>

@@ -1,15 +1,7 @@
 <?php
-session_start();
 
-if (!isset($_SESSION['username'])) {
-    header('Location: index.php');
-    exit;
-}
+session_start() ;   
 
-$username = $_SESSION['username'];
-$email = $_SESSION['email'];
-$member_since = $_SESSION['member_since'] ?? 'Today';
-$first_letter = strtoupper(substr($username, 0, 1));
 ?>
 
 <!DOCTYPE html>
@@ -38,25 +30,25 @@ $first_letter = strtoupper(substr($username, 0, 1));
         </header>
 
         <section class="dashboard__content">
-            <?php if (isset($_SESSION['message'])): ?>
+            
                 <div class="message">
-                    <?php echo $_SESSION['message']; unset($_SESSION['message']); ?>
+                  
                 </div>
-            <?php endif; ?>
+         
 
             <div class="dashboard__intro">
                 <p class="dashboard__eyebrow">Your personal space</p>
-                <h1>Welcome back, <span><?php echo htmlspecialchars($username); ?></span>.</h1>
-                <p><?php echo htmlspecialchars($email); ?></p>
+                <h1>Welcome back, <span><?php echo $_SESSION['auth'][0] ;   ?></span>.</h1>
+                <p><?php   echo "Your Email is " . $_SESSION ['auth'] [1] ; ?></p>
             </div>
 
             <div class="profile__overview">
                 <section class="profile__identity">
-                    <div class="profile__avatar"><?php echo $first_letter; ?></div>
+                    <div class="profile__avatar"><?php ?></div>
                     <div>
                         <p class="dashboard__card-label">Account profile</p>
-                        <h2><?php echo htmlspecialchars($username); ?></h2>
-                        <p class="dashboard__card-copy"><?php echo htmlspecialchars($email); ?></p>
+                        <h2><?php  ?></h2>
+                        <p class="dashboard__card-copy"><?php  ?></p>
                     </div>
                     <span class="profile__online">
                         <i class="bx bxs-circle"></i> Active
@@ -93,7 +85,7 @@ $first_letter = strtoupper(substr($username, 0, 1));
                 <article class="dashboard__card">
                     <div class="dashboard__card-icon"><i class="bx bx-calendar"></i></div>
                     <p class="dashboard__card-label">Member since</p>
-                    <h2><?php echo htmlspecialchars($member_since); ?></h2>
+                   
                     <p class="dashboard__card-copy">Thanks for joining us.</p>
                 </article>
 
@@ -119,7 +111,7 @@ $first_letter = strtoupper(substr($username, 0, 1));
                         <strong>Account created</strong>
                         <span>Your profile is ready to go.</span>
                     </div>
-                    <time><?php echo htmlspecialchars($member_since); ?></time>
+   
                 </div>
             </section>
         </section>

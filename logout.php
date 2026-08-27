@@ -1,10 +1,11 @@
 <?php
-session_start();
+session_start() ;
 
-$_SESSION = array();
+include 'core/functions.php' ;
 
-session_destroy();
 
-header('Location: index.php');
-exit;
+session_destroy() ;
+
+ header("location:index.php") ;
+ die ;
 ?>
